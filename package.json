@@ -10,15 +10,29 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.2.2",
+    "axios": "^0.25.0",
     "expo": "~44.0.0",
+    "expo-font": "~10.0.4",
     "expo-status-bar": "~1.2.0",
+    "feather-icons": "^4.28.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
-    "react-native-web": "0.17.1"
+    "react-native-gesture-handler": "^2.2.0",
+    "react-native-paper": "^4.11.2",
+    "react-native-ratings": "^8.1.0",
+    "react-native-router-flux": "^3.36.0",
+    "react-native-stars": "^1.2.2",
+    "react-native-swipeable": "^0.6.0",
+    "react-native-swipeable-item": "^2.0.2",
+    "react-native-web": "0.17.1",
+    "tailwind-react-native-classnames": "^1.5.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9"
+    "@babel/core": "^7.12.9",
+    "react-native-reanimated": "^2.4.0",
+    "tailwindcss": "^3.0.18"
   },
   "private": true
 }
