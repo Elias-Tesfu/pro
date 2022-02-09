@@ -10,11 +10,8 @@ import Stars from 'react-native-stars';
 
 {/* For the swipeing options */}
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { RectButton } from 'react-native-gesture-handler';
-
 
 import { getBusiness } from '../Backend/api'
-import { version } from 'react/cjs/react.production.min';
 
 export default function Home() {
   const [data, setData] = useState([]);
@@ -23,9 +20,6 @@ export default function Home() {
   useEffect(() => {
     fetch();
   }, []);
-  
-  const excludeColumns = ["id", "name"];
-
 
   const fetch = async () => {
     try {
@@ -40,6 +34,7 @@ export default function Home() {
     }
   }
 
+  const excludeColumns = ["id", "name"];
   const filterData = (value) => {
     const lowerCasedValue = value.toLowerCase().trim();
     if(lowerCasedValue === "") {
@@ -59,6 +54,7 @@ export default function Home() {
     filterData(value);
   }
 
+  {/* For the swipeable */}
   const rightAction = (progress, dragX) => {
     const scale = dragX.interpolate({
       inputRange: [-100, 0],
@@ -66,21 +62,16 @@ export default function Home() {
       extrapolate: 'clamp'
     })
     return (
-      <View style={{ backgroundColor: 'blue', justifyContent: 'center' }}>
-        <Animated.Text style={{ color: 'white', paddingHorizontal: 40, fontWeight: 600 }}>Left Action</Animated.Text>
+      <View style={styles.swipeableView}>
+        <Animated.Text style={styles.swipeableText}>Left Action</Animated.Text>
       </View>
     )
   }
 
-const rightButtons = [
-  <TouchableHighlight><Text>Button 1</Text></TouchableHighlight>,
-  <TouchableHighlight><Text>Button 2</Text></TouchableHighlight>
-];
-
   return (
   <>
   {isLoading ? (
-    <ActivityIndicator animating='true' size='large' color={'red'} />
+    <ActivityIndicator animating='true' size='large' color='#ff9980' />
   ) : (
     <SafeAreaView style={styles.container}>
       {/* This is the Search Bar */}
@@ -97,46 +88,47 @@ const rightButtons = [
             <Swipeable renderRightActions={rightAction}>
               <View style={styles.listItem}>
                 <Image source={{ uri: item.image_url }} style={styles.profileImage} />
-                <View style={{ flex: 1, paddingLeft: 15, paddingTop: 10 }}>
-                  <Text style={{ fontFamily: 'cursive', fontSize: 20, fontWeight: 'bolder', letterSpacing: -1, padding: -5 }}>{item.name}</Text>
-                  <View style={{ flexDirection: 'row', alignContent: 'center', paddingTop: 3, marginBottom: 5 }}>
+                <View style={styles.detailsView}>
+                  <Text style={styles.name}>{item.name}</Text>
+                  <View style={styles.ratingAndReviews}>
                     <Stars
                       display={item.rating}
                       spacing={8}
                       count={5}
                       half={true}
-                      fullStar={<AntDesign name='star' size={18} color="black" style={styles.myStarStyle}/>}
+                      fullStar={<AntDesign name='star' size={18} style={styles.myStarStyle}/>}
                       halfStar={<Icon name={'star-half'} style={styles.myStarStyle}/>}
-                      emptyStar={<AntDesign name='staro' size={18} color="black" style={styles.myEmptyStarStyle}/>}
+                      emptyStar={<AntDesign name='staro' size={18} style={styles.myEmptyStarStyle}/>}
                     />
-                    <Text style={{ paddingLeft: 10, fontFamily: 'cursive', fontWeight: 'bold' }}>{item.review_count}</Text>
+                    <Text style={styles.reviewCount}>{item.review_count}</Text>
                   </View>
 
+                  {/* The flatlist for the categories */}
                   <FlatList 
                     horizontal
                     scrollEnabled={false}
                     data={item.categories}
                     renderItem={({item}) => 
-                      <View style={{ backgroundColor: 'dodgerblue' }}>
-                        <View style={{ marginRight: 3, backgroundColor: '#8c8c8c', borderRadius: 7, flexWrap: 'wrap', width: 80 }}>
-                          <Text style={{ fontFamily: 'sans-serif', fontSize: 11, letterSpacing: 0, fontWeight: 'bolder', textAlign: 'center', padding: 5 }}>{item.title}</Text>
+                      <View>
+                        <View style={styles.categoriesView}>
+                          <Text style={styles.categoriesTitleText}>{item.title}</Text>
                         </View>
                       </View>
                     }
                     keyExtractor={item => item.alias}
                   />
 
+                  {/* The flatlist for the Transactions */}
                   <FlatList 
                     horizontal
                     scrollEnabled={false}
                     data={item.transactions}
                     renderItem={({item}) =>   
                       <View>
-                        <Text style={{ fontFamily: 'sans-serif', fontSize: 15, paddingRight: 10, paddingTop: 10 }}>{item}</Text>
+                        <Text style={styles.transactionsText}>{item}</Text>
                       </View>
                     }
                   />
-
                 </View>
               </View>
             </Swipeable>
@@ -154,7 +146,6 @@ const rightButtons = [
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: 3,
     marginVertical: 15
   },
   searchViewStyle:{
@@ -164,6 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#8c8c8c60",
     marginTop: 5,
     marginBottom: 10,
+    marginHorizontal: 10,
     padding: 5,
     borderRadius: 25,
   },
@@ -177,11 +169,18 @@ const styles = StyleSheet.create({
   listItem:{
     flex:1,
     flexDirection:"row",
-    backgroundColor: 'red',
+    backgroundColor: '#ff998055',
     height: 150,
-    borderRadius: 15,
-    marginHorizontal: 5,
-    marginVertical: 3
+    borderBottomLeftRadius: 15,
+    borderTopLeftRadius: 15,
+    marginLeft: 8,
+    marginVertical: 3,
+    shadowColor: '#4d0f00',
+    shadowOffset: {
+      width: 2,
+      height: 1
+    },
+    shadowRadius: 3
   },
   profileImage: {
     resizeMethod: 'scale',
@@ -190,14 +189,82 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderBottomLeftRadius: 15
   },
+  detailsView: {
+    flex: 1, 
+    paddingLeft: 15, 
+    paddingTop: 7
+  },
+  name: {
+    fontFamily: 'cursive', 
+    fontSize: 20, 
+    fontWeight: 'bolder', 
+    letterSpacing: -1
+  },
+  ratingAndReviews: {
+    flexDirection: 'row', 
+    alignContent: 'center', 
+    paddingTop: 3, 
+    marginBottom: 5
+  },
   myStarStyle: {
-    color: '#ff531a',
     backgroundColor: 'transparent',
     textShadowColor: 'black',
-    textShadowOffset: {width: 1, height: 1},
+    textShadowOffset: {
+      width: 1, 
+      height: 1
+    },
     textShadowRadius: 2,
   },
   myEmptyStarStyle: {
-    color: 'white',
-  }
-})
+    backgroundColor: 'transparent',
+    textShadowColor: 'black',
+    textShadowOffset: { 
+      width: 1,
+      height: 1
+     },
+    textShadowRadius: 2
+  },
+  reviewCount: {
+    paddingLeft: 10, 
+    fontFamily: 'cursive', 
+    fontWeight: 'bold'
+  },
+  categoriesView: {
+    opacity:0.7, 
+    marginRight: 3, 
+    backgroundColor: '#8c8c8c60',
+    borderRadius: 7, 
+    flexWrap: 'wrap', 
+    width: 70
+  },
+  categoriesTitleText: {
+    fontFamily: 'sans-serif', 
+    fontSize: 9, 
+    fontWeight: '900',
+    textAlign: 'center', 
+    padding: 3
+  },
+  transactionsText: {
+    fontFamily: 'sans-serif', 
+    fontSize: 15, 
+    paddingRight: 10, 
+    paddingTop: 10, 
+    paddingBottom: 5
+  },
+  swipeableView: {
+    backgroundColor: '#ff9980', 
+    justifyContent: 'center', 
+    marginVertical: 3,
+    shadowColor: '#4d0f00',
+    shadowOffset: {
+      width: 2,
+      height: 1
+    },
+    shadowRadius: 3
+  },
+  swipeableText: {
+    color: 'white', 
+    paddingHorizontal: 40, 
+    fontWeight: 600
+  },
+});
