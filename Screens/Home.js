@@ -15,6 +15,9 @@ import { getBusiness } from '../Backend/api'
 
 export default function Home() {
   const [data, setData] = useState([]);
+  const [filtData, setFiltData] = useState([]);
+
+  const [error, setError] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,29 +28,24 @@ export default function Home() {
     try {
       const response = await getBusiness()
       setData(response.data.businesses);
+      setFiltData(response.data.businesses);
       setIsLoading(false)
       console.log(response.data.businesses);
-      console.log
     } catch (error) {
       console.log(error);
-      alert("ERROR!!!")
+      setError(error);
     }
   }
 
   const excludeColumns = ["id", "name"];
   const filterData = (value) => {
     const lowerCasedValue = value.toLowerCase().trim();
-    if(lowerCasedValue === "") {
-      setData(data);
-    }
-    else {
-      const filteredData = data.filter(item => {
-        return Object.keys(item).some(key =>
-          excludeColumns.includes(key) ? false : item[key].toString().toLowerCase().includes(lowerCasedValue)
-        );
-      });
-      setData(filteredData);
-    }
+    const filteredData = data.filter(item => {
+      return Object.keys(item).some(keys =>
+        excludeColumns.includes(keys) ? false : item[keys].toString().toLowerCase().includes(lowerCasedValue)
+      );
+    });
+    setData(filteredData);
   }
 
   const handleChange = value => {
@@ -58,87 +56,105 @@ export default function Home() {
   const rightAction = (progress, dragX) => {
     const scale = dragX.interpolate({
       inputRange: [-100, 0],
-      outputRange: [0.7, 0],
+      outputRange: [1, 0],
       extrapolate: 'clamp'
     })
     return (
       <View style={styles.swipeableView}>
-        <Animated.Text style={styles.swipeableText}>Left Action</Animated.Text>
+        <Animated.Text style={[styles.swipeableText, { transform: [{ scale }] } ]}>Left Action</Animated.Text>
       </View>
     )
   }
 
+  if (isLoading) {
+    return (
+      <View>
+        <ActivityIndicator animating='true' size='large' color='#ff9980' />
+      </View>
+    )
+  }
+
+  if (error) {
+    <View>
+      <Text style={{ fontSize: 18 }}>Error fetching data. . . Check your network connection!</Text>
+    </View>
+  }
+
   return (
   <>
-  {isLoading ? (
-    <ActivityIndicator animating='true' size='large' color='#ff9980' />
-  ) : (
-    <SafeAreaView style={styles.container}>
-      {/* This is the Search Bar */}
-      <View style={styles.searchViewStyle}>
-        <AntDesign name="search1" size={30} color="black" style={styles.searchIconStyle}/>
-        <TextInput placeholder='Search' onChange={e => handleChange(e.target.value)} style={styles.searchTextStyle}/>
-      </View>
+  <SafeAreaView style={styles.container}>
+    {/* This is the Search Bar */}
+    <View style={styles.searchViewStyle}>
+      <AntDesign name="search1" size={30} color="black" style={styles.searchIconStyle}/>
+      <TextInput 
+        autoCapitalize='none'
+        autoCorrect={false}
+        clearButtonMode="always"
+        placeholder='Search' 
+        onChange={e => handleChange(e.target.value)} style={styles.searchTextStyle}
+      />
+    </View>
 
-      {/* This is the list */}
-      <View>
-        <FlatList 
-          data={data}
-          renderItem={({item}) => 
-            <Swipeable renderRightActions={rightAction}>
-              <View style={styles.listItem}>
-                <Image source={{ uri: item.image_url }} style={styles.profileImage} />
-                <View style={styles.detailsView}>
-                  <Text style={styles.name}>{item.name}</Text>
-                  <View style={styles.ratingAndReviews}>
-                    <Stars
-                      display={item.rating}
-                      spacing={8}
-                      count={5}
-                      half={true}
-                      fullStar={<AntDesign name='star' size={18} style={styles.myStarStyle}/>}
-                      halfStar={<Icon name={'star-half'} style={styles.myStarStyle}/>}
-                      emptyStar={<AntDesign name='staro' size={18} style={styles.myEmptyStarStyle}/>}
-                    />
-                    <Text style={styles.reviewCount}>{item.review_count}</Text>
-                  </View>
-
-                  {/* The flatlist for the categories */}
-                  <FlatList 
-                    horizontal
-                    scrollEnabled={false}
-                    data={item.categories}
-                    renderItem={({item}) => 
-                      <View>
-                        <View style={styles.categoriesView}>
-                          <Text style={styles.categoriesTitleText}>{item.title}</Text>
-                        </View>
-                      </View>
-                    }
-                    keyExtractor={item => item.alias}
+    {/* This is the list */}
+    <View>
+      <FlatList 
+        data={data}
+        renderItem={({item}) => 
+          <Swipeable
+            renderRightActions={rightAction}
+            rightButtonWIdth={'30%'}
+          >
+            <View style={styles.listItem}>
+              <Image source={{ uri: item.image_url }} style={styles.profileImage} />
+              <View style={styles.detailsView}>
+                <Text style={styles.name}>{item.name}</Text>
+                <View style={styles.ratingAndReviews}>
+                  <Stars
+                    display={item.rating}
+                    spacing={8}
+                    count={5}
+                    half={true}
+                    fullStar={<AntDesign name='star' size={18} style={styles.myStarStyle}/>}
+                    halfStar={<Icon name={'star-half'} style={styles.myStarStyle}/>}
+                    emptyStar={<AntDesign name='staro' size={18} style={styles.myEmptyStarStyle}/>}
                   />
-
-                  {/* The flatlist for the Transactions */}
-                  <FlatList 
-                    horizontal
-                    scrollEnabled={false}
-                    data={item.transactions}
-                    renderItem={({item}) =>   
-                      <View>
-                        <Text style={styles.transactionsText}>{item}</Text>
-                      </View>
-                    }
-                  />
+                  <Text style={styles.reviewCount}>{item.review_count}</Text>
                 </View>
+
+                {/* The flatlist for the categories */}
+                <FlatList 
+                  horizontal
+                  scrollEnabled={false}
+                  data={item.categories}
+                  renderItem={({item}) => 
+                    <View>
+                      <View style={styles.categoriesView}>
+                        <Text style={styles.categoriesTitleText}>{item.title}</Text>
+                      </View>
+                    </View>
+                  }
+                  keyExtractor={item => item.alias}
+                />
+
+                {/* The flatlist for the Transactions */}
+                <FlatList 
+                  horizontal
+                  scrollEnabled={false}
+                  data={item.transactions}
+                  renderItem={({item}) =>   
+                    <View>
+                      <Text style={styles.transactionsText}>{item}</Text>
+                    </View>
+                  }
+                />
               </View>
-            </Swipeable>
-          }
-          keyExtractor={item => item.id}
-        />
-      </View>
-    </SafeAreaView>
-  )
-  }
+            </View>
+          </Swipeable>
+        }
+        keyExtractor={item => item.id}
+      />
+    </View>
+  </SafeAreaView>
   </>
   );
 }
@@ -149,9 +165,8 @@ const styles = StyleSheet.create({
     marginVertical: 15
   },
   searchViewStyle:{
-    flex: 1,
     flexDirection: 'row',
-    height: 20,
+    height: 50,
     backgroundColor: "#8c8c8c60",
     marginTop: 5,
     marginBottom: 10,
