@@ -97,7 +97,7 @@ export default function Home() {
         autoCorrect={false}
         clearButtonMode="always"
         placeholder='Search Resturants' 
-        onChange={e => handleChange(e.target.value)}
+        onChangeText={text => handleChange(text)}
         style={styles.searchTextStyle}
       />
     </View>
