@@ -15,8 +15,7 @@ import { getBusiness } from '../Backend/api'
 
 export default function Home() {
   const [data, setData] = useState([]);
-  const [filtData, setFiltData] = useState([]);
-
+  const [fulData, setFulData] = useState([]);
   const [error, setError] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -28,28 +27,35 @@ export default function Home() {
     try {
       const response = await getBusiness()
       setData(response.data.businesses);
-      setFiltData(response.data.businesses);
+      setFulData(response.data.businesses);
       setIsLoading(false)
       console.log(response.data.businesses);
     } catch (error) {
       console.log(error);
+      setIsLoading(false)
       setError(error);
     }
   }
 
+  const handleChange = value => {
+    if (value) {
+      filterData(value);
+    } else {
+      setData(fulData)
+    }
+  };
+
   const excludeColumns = ["id", "name"];
   const filterData = (value) => {
-    const lowerCasedValue = value.toLowerCase().trim();
+    const lowercasedValue = value.toLowerCase();
+    console.log(lowercasedValue)
     const filteredData = data.filter(item => {
-      return Object.keys(item).some(keys =>
-        excludeColumns.includes(keys) ? false : item[keys].toString().toLowerCase().includes(lowerCasedValue)
+      return Object.keys(item).some(key =>
+        excludeColumns.includes(key) ? false : item[key].toString().toLowerCase().includes(lowercasedValue)
       );
     });
-    setData(filteredData);
-  }
-
-  const handleChange = value => {
-    filterData(value);
+    console.log(filteredData)
+    setData(filteredData); 
   }
 
   {/* For the swipeable */}
@@ -90,8 +96,9 @@ export default function Home() {
         autoCapitalize='none'
         autoCorrect={false}
         clearButtonMode="always"
-        placeholder='Search' 
-        onChange={e => handleChange(e.target.value)} style={styles.searchTextStyle}
+        placeholder='Search Resturants' 
+        onChange={e => handleChange(e.target.value)}
+        style={styles.searchTextStyle}
       />
     </View>
 
