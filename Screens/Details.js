@@ -1,11 +1,11 @@
 import React from 'react';
 import { ImageBackground, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
-{/* Fot the Icons */}
+//Fot the Icons 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AntDesign } from '@expo/vector-icons';
 
-{/* For Start in the Rating */}
+//For Start in the Rating 
 import Stars from 'react-native-stars';
 
 const Details = ({ route }) => {
